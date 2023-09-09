@@ -1,12 +1,21 @@
+
+#define CR_DEBUG // Adds debug messages!
 #include "plugin_manager.hpp"
 
+namespace ppp = pluginsplusplus;
+
 int main() {
-    (void)ppp::PluginHandleBase<ppp::plugin_base>::GetTypeID(); // Make sure the base has type 0!
     ppp::PluginManager<ppp::plugin_base> plugins;
 
-    auto p = std::make_unique<ppp::SharedPluginHandle<ppp::plugin_base>>(ppp::SharedPluginHandle<ppp::plugin_base>::load("/home/shared/Dev/Plugin++/plugin.so"));
-    plugins.register_plugin(std::move(p));
+    // for(auto file: std::filesystem::directory_iterator("."))
+    //     for(auto& [extension, _]: ppp::PluginManager<ppp::plugin_base>::loaders)
+    //         if(file.is_regular_file() and file.path().extension() == extension) {
+    //             plugins.load(file.path());
+    //             break;
+    //         }
+
+    plugins.load("plugin.so");
 
     while(plugins.step())
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(16));
 }
