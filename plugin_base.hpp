@@ -46,7 +46,7 @@
 	}*/\
 	} \
 \
-	WASI_EXPORT(get_plugin) void** get_plugin() { return (void**) &plugin; }\
+	WASI_EXPORT(get_plugin) void* get_plugin() { return plugin; }\
 	WASI_EXPORT(is_plugin_threaded) bool is_plugin_threaded() { return plugin->flags[pluginsplusplus::plugin_base::Flags::HasThread]; }\
 \
 	WASI_EXPORT(go) void go(int32_t host_id) {\
@@ -58,4 +58,12 @@
 	extern "C" bool ppp_stop_token_stop_requested(int32_t host_id);\
 	[[nodiscard]] bool pluginsplusplus::stop_token::stop_requested() const noexcept {\
 		return ppp_stop_token_stop_requested(host_id);\
+	}\
+\
+	static constexpr size_t EXCEPTION_BUFF_SIZE = 1024;\
+	char exception_buff[EXCEPTION_BUFF_SIZE];\
+\
+	extern "C" void* __cxa_allocate_exception(size_t thrown_size) {\
+		if (thrown_size > EXCEPTION_BUFF_SIZE) printf("Exception too big");\
+		return exception_buff;\
 	}

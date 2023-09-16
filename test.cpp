@@ -13,15 +13,6 @@ namespace pluginsplusplus {
 
 extern "C" void ppp_cxa_throw(int32_t thrown_exception_, int32_t type_info_, int32_t dest_);
 
-// extern "C" int64_t sandbox2host(int32_t sbx);
-// extern "C" int64_t buffer2host(int32_t offset, int32_t length);
-// extern "C" int
-// intToStr(int x, char *str, int str_len, int digit);
-// extern "C" int
-// get_pow(int x, int y);
-// extern "C" int32_t
-// calculate_native(int32_t n, int32_t func1, int32_t func2);
-
 #define PPP_WASM_NO_CUSTOM_SYMBOLS
 
 void register_custom_symbols(std::vector<NativeSymbol>& native_symbols)
