@@ -1,11 +1,10 @@
 #pragma once
 
-// #include "wasm_export.h"
-#define __CR_H__ // NO CR! (turns out it doesn't support WASM as a platform :P)
 #define PPP_NON_STANDARD_STOP_TOKEN
 #define PPP_NON_STANDARD_THREADED_PLUGIN_BASE
 #include "../plugin_base.hpp"
 
+#ifndef PPP_WASM_IMPL
 
 #define WASI_EXPORT(name) __attribute__((export_name(#name))) extern "C"
 
@@ -67,3 +66,5 @@
 		if (thrown_size > EXCEPTION_BUFF_SIZE) printf("Exception too big");\
 		return exception_buff;\
 	}
+
+#endif

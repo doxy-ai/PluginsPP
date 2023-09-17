@@ -1,8 +1,3 @@
-/*
- * Copyright (C) 2019 Intel Corporation.  All rights reserved.
- * SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
- */
-
 #include "bh_platform.h"
 #include "wasm_export.h"
 #include <cmath>
@@ -11,7 +6,7 @@
 #include <vector>
 #include <iostream>
 
-extern std::vector<std::stop_token> wasm_thread_stop_tokens;
+std::vector<std::stop_token> wasm_thread_stop_tokens;
 
 extern "C" bool ppp_stop_token_stop_requested(int32_t host_id) {
     return wasm_thread_stop_tokens.at(host_id).stop_requested();

@@ -8,6 +8,8 @@ add_subdirectory(wasmVM)
 
 set(CMAKE_CXX_STANDARD 20)
 
-#add_executable (tst "test.cpp" native_impl.cpp)
-add_executable (tst "test.cpp" native_impl.cpp ../../counter.cpp)
+add_library(WASMloader SHARED plugin.cpp native_impl.cpp)
+target_link_libraries(WASMloader PUBLIC wasmVM)
+
+add_executable (tst "test/test.cpp" native_impl.cpp ../../counter.cpp)
 target_link_libraries(tst PUBLIC wasmVM)
