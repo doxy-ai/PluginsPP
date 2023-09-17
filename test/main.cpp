@@ -16,7 +16,7 @@ int main() {
 	// 			break;
 	// 		}
 
-	plugins.load("plugin.so");
+	plugins.load("libDebugPlugin.so");
 
 	while(plugins.step())
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));

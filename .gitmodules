@@ -1,0 +1,4 @@
+[submodule "plugin/WASMLoader"]
+	path = plugin/WASMLoader
+	url = https://github.com/doxy-ai/PluginsPP.git
+	branch = WASMLoader
