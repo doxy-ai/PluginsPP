@@ -2,7 +2,7 @@
 
 namespace ppp = pluginsplusplus;
 
-struct DebugPlugin: public ppp::threaded_plugin_base {
+struct DebugPlugin: public ppp::threaded_plugin_base<ppp::plugin_base> {
 	int value = 5;
 
 	void load() override {
@@ -10,16 +10,16 @@ struct DebugPlugin: public ppp::threaded_plugin_base {
 	}
 	void start() override {
 		std::cout << "start!" << std::endl;
-		ppp::threaded_plugin_base::start();
+		ppp::threaded_plugin_base<ppp::plugin_base>::start();
 	}
-	void go(std::stop_token) override {
+	void go(ppp::stop_token) override {
 		std::cout << "go!" << std::endl;
 	}
 	void stop() override {
-		ppp::threaded_plugin_base::stop();
+		ppp::threaded_plugin_base<ppp::plugin_base>::stop();
 		std::cout << "stop!" << std::endl;
 	}
-	int main_thread_step() override {
+	int step() override {
 		// std::cout << "step" << std::endl;
 		value++;
 		return 0;

@@ -10,15 +10,16 @@
 
 namespace pluginsplusplus {
 
+	template<class Derived, class Base>
+	concept same_or_derived_from = std::same_as<Derived, Base> || std::derived_from<Derived, Base>;
+
 	struct plugin_base {
 		enum Flags {
-			Initialized = 0,
+			Started = 0,
 			CanRegisterPlugin,
 			HasThread,
 			Count,
 		};
-		static constexpr const char* CanRegisterPluginString = "10";
-		static constexpr const char* CanRegisterPluginAndHasThreadString = "11";
 
 		std::bitset<Flags::Count> flags;
 
@@ -26,12 +27,42 @@ namespace pluginsplusplus {
 		virtual void load() {}
 		virtual void start() {}
 		virtual void stop() {}
-		virtual int main_thread_step() { return 0; }
+		virtual int step() { return 0; }
 
 		static plugin_base* create() { return new plugin_base; }
 	};
 
-	struct threaded_plugin_base: public plugin_base {
+#ifndef PPP_NON_STANDARD_STOP_TOKEN
+	using stop_token = std::stop_token;
+#else
+	// Implements the same interface as std::stop_token!
+	struct stop_token {
+		int32_t host_id = 0;
+		[[nodiscard]] bool stop_requested() const noexcept;
+		[[nodiscard]] bool stop_possible() const noexcept { return host_id; }
+		[[nodiscard]] friend bool operator==( const stop_token& lhs, const stop_token& rhs ) noexcept {
+			return lhs.host_id == rhs.host_id;
+		}
+	};
+}
+
+	template<>
+	void std::swap<pluginsplusplus::stop_token>( pluginsplusplus::stop_token& lhs, pluginsplusplus::stop_token& rhs ) noexcept {
+		std::swap(lhs.host_id, rhs.host_id);
+	}
+
+namespace pluginsplusplus {
+#endif
+
+	template<same_or_derived_from<plugin_base> PluginBase = plugin_base>
+	struct threaded_plugin_base: public PluginBase {
+#ifndef PPP_NON_STANDARD_THREADED_PLUGIN_BASE
+		threaded_plugin_base() { this->flags.set(plugin_base::Flags::HasThread); }
+		threaded_plugin_base(const threaded_plugin_base&) = default;
+		threaded_plugin_base(threaded_plugin_base&&) = default;
+		threaded_plugin_base& operator=(const threaded_plugin_base&) = default;
+		threaded_plugin_base& operator=(threaded_plugin_base&&) = default;
+
 		std::jthread thread;
 		void start() override {
 			thread = std::jthread([this](std::stop_token stop) { go(stop); });
@@ -40,7 +71,10 @@ namespace pluginsplusplus {
 			thread.request_stop();
 			thread.join();
 		}
-		virtual void go(std::stop_token) {}
+#else
+		PPP_NON_STANDARD_THREADED_PLUGIN_BASE
+#endif
+		virtual void go(pluginsplusplus::stop_token) {}
 	};
 
 	#define PLUGIN_BOILERPLATE(Type)\
@@ -65,11 +99,11 @@ namespace pluginsplusplus {
 				loadStep = false;\
 				return 0;\
 			}\
-			[[unlikely]] if(!plugin->flags[pluginsplusplus::plugin_base::Initialized]) {\
+			[[unlikely]] if(!plugin->flags[pluginsplusplus::plugin_base::Started]) {\
 				plugin->start();\
-				plugin->flags.set(pluginsplusplus::plugin_base::Initialized);\
+				plugin->flags.set(pluginsplusplus::plugin_base::Started);\
 			}\
-			return plugin->main_thread_step();\
+			return plugin->step();\
 		} catch (std::exception& e) {\
 			std::cerr << e.what() << std::endl;\
 			return -1;\
@@ -80,16 +114,15 @@ namespace pluginsplusplus {
 
 
 
-	template<std::derived_from<plugin_base> PluginBase = plugin_base>
+	template<same_or_derived_from<plugin_base> PluginBase = plugin_base>
 	struct PluginHandleBase;
 
-	template<std::derived_from<plugin_base> PluginBase = plugin_base>
+	template<same_or_derived_from<plugin_base> PluginBase = plugin_base>
 	struct PluginManager;
 
-	template<std::derived_from<plugin_base> PluginBase = plugin_base>
-	struct plugin_host_plugin_base: public plugin_base {
-		plugin_host_plugin_base() requires(!std::derived_from<threaded_plugin_base, PluginBase>) : plugin_base(CanRegisterPluginString) {}
-		plugin_host_plugin_base() requires(std::derived_from<threaded_plugin_base, PluginBase>) : plugin_base(CanRegisterPluginAndHasThreadString) {}
+	template<same_or_derived_from<plugin_base> PluginBase = plugin_base>
+	struct plugin_host_plugin_base: public PluginBase {
+		plugin_host_plugin_base() { this->flags.set(plugin_base::Flags::CanRegisterPlugin); }
 		plugin_host_plugin_base(const plugin_host_plugin_base&) = default;
 		plugin_host_plugin_base(plugin_host_plugin_base&&) = default;
 		plugin_host_plugin_base& operator=(const plugin_host_plugin_base&) = default;

@@ -7,7 +7,7 @@
 
 namespace pluginsplusplus {
 
-	template<std::derived_from<plugin_base> PluginBase>
+	template<same_or_derived_from<plugin_base> PluginBase>
 	struct PluginManager {
 		using LoaderFunc = std::unique_ptr<PluginHandleBase<PluginBase>>(*)(std::filesystem::path path);
 		static std::map<std::string, LoaderFunc> loaders;
@@ -19,7 +19,6 @@ namespace pluginsplusplus {
 
 		PluginManager() {
 			(void)PluginHandleBase<plugin_base>::GetTypeID(); // Make sure the base has type 0!
-			PluginManager<plugin_base>::register_loader(std::filesystem::path(CR_PLUGIN("a")).extension().string(), &DynamicPluginHandle<plugin_base>::load_unique);
 		}
 
 		void register_plugin(std::unique_ptr<PluginHandleBase<PluginBase>>&& plugin) { 
@@ -27,7 +26,7 @@ namespace pluginsplusplus {
 			if((*plugin->plugin)->flags[plugin_base::CanRegisterPlugin])
 				((plugin_host_plugin_base<PluginBase>*)*plugin->plugin)->manager = this;
 
-			plugins.emplace_back(std::move(plugin)); 
+			plugins.emplace(plugins.cbegin(), std::move(plugin)); 
 		}
 		void register_plugin(PluginHandleBase<PluginBase>* plugin) { register_plugin(plugin); }
 
@@ -47,7 +46,7 @@ namespace pluginsplusplus {
 	};
 
 	// TODO: Will this cause name conflicts? Or is it fine since its templated?
-	template<std::derived_from<plugin_base> PluginBase>
+	template<same_or_derived_from<plugin_base> PluginBase>
 	std::map<std::string, typename PluginManager<PluginBase>::LoaderFunc> PluginManager<PluginBase>::loaders;
 
 }

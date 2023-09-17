@@ -1,10 +1,12 @@
 
 #define CR_DEBUG // Adds debug messages!
 #include "plugin_manager.hpp"
+#include "dynamic_plugin_handle.hpp"
 
 namespace ppp = pluginsplusplus;
 
 int main() {
+	ppp::DynamicPluginHandle<ppp::plugin_base>::register_loaders();
 	ppp::PluginManager<ppp::plugin_base> plugins;
 
 	// for(auto file: std::filesystem::directory_iterator("."))
