@@ -16,7 +16,7 @@ namespace pluginsplusplus {
 	struct plugin_base {
 		enum Flags {
 			Started = 0,
-			CanRegisterPlugin,
+			CanRegister,
 			HasThread,
 			Count,
 		};
@@ -24,6 +24,7 @@ namespace pluginsplusplus {
 		std::bitset<Flags::Count> flags;
 
 		virtual ~plugin_base() {}
+		virtual std::string_view name() { return "plugin"; }
 		virtual void load() {}
 		virtual void start() {}
 		virtual void stop() {}
@@ -122,15 +123,26 @@ namespace pluginsplusplus {
 
 	template<same_or_derived_from<plugin_base> PluginBase = plugin_base>
 	struct plugin_host_plugin_base: public PluginBase {
-		plugin_host_plugin_base() { this->flags.set(plugin_base::Flags::CanRegisterPlugin); }
+		PluginManager<PluginBase>* manager;
+
+		plugin_host_plugin_base() { this->flags.set(plugin_base::Flags::CanRegister); }
 		plugin_host_plugin_base(const plugin_host_plugin_base&) = default;
 		plugin_host_plugin_base(plugin_host_plugin_base&&) = default;
 		plugin_host_plugin_base& operator=(const plugin_host_plugin_base&) = default;
 		plugin_host_plugin_base& operator=(plugin_host_plugin_base&&) = default;
 
-		PluginManager<PluginBase>* manager;
 		void register_plugin(std::unique_ptr<PluginHandleBase<PluginBase>>&& plugin) {
 			manager->register_plugin(std::move(plugin));
+		}
+
+		template<typename F> // TODO: Replace with concept
+		void register_function(std::string functionName, F function) {
+			manager->register_function(this->name(), functionName, function);
+		}
+
+		template<typename F = void>
+		F* lookup_function(std::string name, bool throwIfNull = true) {
+			return manager->lookup_function(name, throwIfNull);
 		}
 	};
 

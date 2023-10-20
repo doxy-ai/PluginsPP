@@ -22,7 +22,12 @@ namespace pluginsplusplus {
 		PluginHandleBase& operator=(const PluginHandleBase&) = default;
 		PluginHandleBase& operator=(PluginHandleBase&&) = default;
 
+		virtual std::string_view name() { 
+			if(!this->plugin) return "plugin"; 
+			return (*this->plugin)->name(); 
+		} 
 		virtual bool step() { return true; }
+		virtual void stop() {} // TODO: Nessicary?
 
 		template<typename T = PluginHandleBase>
 		static uint16_t GetTypeID() {

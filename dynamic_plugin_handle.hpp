@@ -54,6 +54,10 @@ namespace pluginsplusplus {
 			}
 			return true;
 		}
+
+		void stop() override { // TODO: Nessicary?
+			cr_plugin_unload(ctx, false, true);
+		}
 	};
 
 }
