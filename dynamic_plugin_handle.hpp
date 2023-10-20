@@ -16,6 +16,7 @@ namespace pluginsplusplus {
 		DynamicPluginHandle& operator=(const DynamicPluginHandle&) = delete;
 		DynamicPluginHandle& operator=(DynamicPluginHandle&& o) {
 			this->type = o.type;
+			this->manager = o.manager;
 			this->plugin = o.plugin;
 			ctx = o.ctx;
 			o.ctx.p = nullptr;
@@ -47,8 +48,12 @@ namespace pluginsplusplus {
 			if(changed) {
 				so_handle handle = ((cr_internal*)ctx.p)->handle;
 				this->plugin = (PluginBase**)cr_so_symbol(handle, "plugin");
+
+				// If the plugin has opted into itself being able to register plugins, specify us as its manager!
+				if((*this->plugin)->flags[plugin_base::CanRegister])
+					((plugin_host_plugin_base<PluginBase>*)*this->plugin)->manager = this->manager;
 				
-				std::cout << this->plugin << std::endl;
+				// std::cout << this->plugin << std::endl;
 
 				return this->plugin != nullptr;
 			}

@@ -12,4 +12,10 @@ if(PROJECT_IS_TOP_LEVEL)
 
     add_library(DebugPlugin SHARED "test/DebugPlugin.cpp")
     target_link_libraries(DebugPlugin PUBLIC pluginsplusplus)
+
+    add_library(RegisterPlugin SHARED "test/RegisterPlugin.cpp")
+    target_link_libraries(RegisterPlugin PUBLIC pluginsplusplus)
+
+    add_library(CallPlugin SHARED "test/CallPlugin.cpp")
+    target_link_libraries(CallPlugin PUBLIC pluginsplusplus)
 endif()

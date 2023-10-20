@@ -12,6 +12,7 @@ namespace pluginsplusplus {
 	template<same_or_derived_from<plugin_base> PluginBase>
 	struct PluginHandleBase {
 		uint16_t type = GetTypeID<PluginHandleBase>();
+		PluginManager<PluginBase>* manager = nullptr;
 		PluginBase** plugin = nullptr;
 
 		PluginHandleBase(uint16_t type = GetTypeID<PluginHandleBase>(), PluginBase** plugin = nullptr) 

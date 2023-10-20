@@ -1,11 +1,9 @@
 #pragma once
 #include "cr.h"
+#include "function_registry.hpp"
 #include <cassert>
 #include <thread>
-#include <exception>
-#include <iostream>
 #include <utility>
-#include <concepts>
 #include <bitset>
 
 namespace pluginsplusplus {
@@ -135,14 +133,19 @@ namespace pluginsplusplus {
 			manager->register_plugin(std::move(plugin));
 		}
 
-		template<typename F> // TODO: Replace with concept
-		void register_function(std::string functionName, F function) {
+
+		void register_function(std::string functionName, FunctionRegistry::Function function) {
 			manager->register_function(this->name(), functionName, function);
 		}
 
 		template<typename F = void>
 		F* lookup_function(std::string name, bool throwIfNull = true) {
-			return manager->lookup_function(name, throwIfNull);
+			return manager->template lookup_function<F>(name, throwIfNull);
+		}
+
+		template<typename Return = void, typename... Args>
+		Return call_function(std::string name, Args... args) {
+			return manager->template call_function(name, std::forward<Args>(args)...);
 		}
 	};
 

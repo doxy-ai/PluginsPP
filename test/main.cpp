@@ -16,7 +16,9 @@ int main() {
 	// 			break;
 	// 		}
 
-	plugins.load("libDebugPlugin.so");
+	// plugins.load("libDebugPlugin.so");
+	plugins.load("libCallPlugin.so"); // TODO: This has to be loaded before register or the program crashes!
+	plugins.load("libRegisterPlugin.so");
 
 	while(plugins.step())
 		std::this_thread::sleep_for(std::chrono::milliseconds(16));

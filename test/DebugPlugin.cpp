@@ -1,5 +1,7 @@
 #include "plugin/plugin_base.hpp"
 
+#include <iostream>
+
 namespace ppp = pluginsplusplus;
 
 struct DebugPlugin: public ppp::threaded_plugin_base<ppp::plugin_base> {
